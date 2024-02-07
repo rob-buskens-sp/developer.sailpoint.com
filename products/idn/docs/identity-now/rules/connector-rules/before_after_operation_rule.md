@@ -4,8 +4,8 @@ title: Before and After Operations on Source Account Rule
 pagination_label: Before and After Operations
 sidebar_label: Before and After Rule Operations
 sidebar_class_name: beforeAndAfterRuleOperations
-keywords: ['cloud', 'rules']
-description: This rule executes PowerShell commands on the IQService component after a source account has an operation performed on it.
+keywords: ['cloud', 'rules', 'PowerShell']
+description: These rules execute PowerShell commands on the IQService component after a source account has an operation performed on it.
 slug: /docs/rules/connector-rules/before-and-after-rule-operations
 tags: ['Rules']
 ---
@@ -14,9 +14,9 @@ tags: ['Rules']
 
 ## Overview
 
-This rule executes PowerShell commands on the IQService component after a source account has an operation performed on it.
+These rules execute PowerShell commands on the IQService component before or after a source account has an operation performed on it.
 
-The following operations can be performed on a source:
+The following rules can be configured on Active Directory and Azure Active Directory sources:
 
 | Rule Name | Rule Type | Source Type(s) | Purpose |
 | --- | --- | --- | --- |
@@ -29,7 +29,7 @@ The following operations can be performed on a source:
 
 ## Execution
 
-- **Connector Execution** - This rule executes within the virtual appliance. It may offer special abilities to perform connector-related functions, and it may offer managed connections to sources.
+- **Connector Execution** - These rules execute on the IQService component and present an opportunity, depending on which rule is used, to affect provisioning. In addition, PowerShell commands may be executed to implement customer specific requirements.
 - **Logging** - Logging statements are viewable within the ccg.log on the virtual appliance, and they are viewable by SailPoint personnel.
 
 ![Rule Execution](../img/connector_execution.png)
@@ -46,9 +46,9 @@ The following operations can be performed on a source:
 
 For supportability, it is recommended that you write these operation rules with only the most basic logic necessary to trigger a PowerShell script and shift the bulk of the downstream events and/or modifications to the PowerShell script itself. This script would reside on the client's servers and can therefore be easily maintained or modified by the client as needed. It also allows the client to implement changes to the PowerShell scripted functionality without requiring code review by SailPoint because the code runs outside of the IdentityNow platform.
 
-## Rule Template
+## BeforeCreate Rule Template
 
-This example triggers on the BeforeCreate operation. If you want to use another operation, replace `BeforeCreate` in the name and `ConnectorBeforeCreate` in the type with one of the other operations described earlier in the [Overview](#overview) section.
+This example triggers on the BeforeCreate operation. If you want to use another operation, replace `BeforeCreate` in the name and `ConnectorBeforeCreate` in the type with one of the other operations described earlier in the [Overview](#overview) section. Inputs and outputs may vary by rule type.
 
 ```xml
 <?xml version='1.0' encoding='UTF-8'?>
@@ -130,6 +130,7 @@ You can also use the following Powershell script template for each operation in 
 # Instructions (for each IQService host that could run the script):
 #   - Update the path to Utils.dll (can be an unqualified path like "Utils.dll" since script is copied to IQService folder for execution)
 #   - Make sure Utils.dll is in the specified folder on each IQService host
+#   - Make sure Utils.dll is not shown a blocked via the properties view
 #   - Be sure the account that runs IQService has appropriate permissions to create directories and set permissions on them
 #   - Be sure to set the "run as" account for the IQService in Windows Service to the above-specified account instead of just the "logged on" user
 #   - Set a proper location for the $logFile variable
@@ -217,8 +218,8 @@ try {
 }
 catch {
     $ErrorMessage = $_.Exception.Message
-   $ErrorItem = $_.Exception.ItemName
-   LogToFile("Error: Item = $ErrorItem -> Message = $ErrorMessage")
+    $ErrorItem = $_.Exception.ItemName
+    LogToFile("Error: Item = $ErrorItem -> Message = $ErrorMessage")
 }
 
 if($enableDebug) {
